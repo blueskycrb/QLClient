@@ -1,0 +1,12 @@
+{
+  "app": "qlmb",
+  "version": "1.0.5",
+  "build": "6",
+  "bundle_id": "com.okm.qlmb",
+  "source_branch": "dev/mobile-prototype-style",
+  "source_commit": "a92a40c",
+  "release_version": "v1.0.5_20260523_0436",
+  "ipa_name": "qlmb-adhoc.ipa",
+  "ipa_size_bytes": 2697883,
+  "created_at": "2026-05-23 04:36:25"
+}
