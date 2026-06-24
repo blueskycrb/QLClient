@@ -79,28 +79,36 @@ private struct EnvRow: View {
   let env: EnvItem
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 8) {
-      HStack(alignment: .firstTextBaseline) {
-        Text(env.name)
-          .font(.headline)
+    HStack(alignment: .top, spacing: 12) {
+      Image(systemName: "curlybraces.square")
+        .font(.system(size: 22, weight: .semibold))
+        .foregroundColor(env.isEnabled ? QLStyle.primary : .secondary)
+        .frame(width: 38, height: 38)
+        .background((env.isEnabled ? QLStyle.primary : Color.secondary).opacity(0.12), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+
+      VStack(alignment: .leading, spacing: 8) {
+        HStack(alignment: .firstTextBaseline) {
+          Text(env.name)
+            .font(.headline)
+            .lineLimit(1)
+          Spacer(minLength: 8)
+          StatusBadge(text: env.isEnabled ? "启用" : "禁用", color: env.isEnabled ? .green : .gray)
+          if env.isPinnedOnTop {
+            StatusBadge(text: "置顶", color: .orange)
+          }
+        }
+        Text(env.value)
+          .font(.caption)
+          .foregroundColor(.secondary)
           .lineLimit(1)
-        Spacer()
-        StatusBadge(text: env.isEnabled ? "启用" : "禁用", color: env.isEnabled ? .green : .gray)
-        if env.isPinnedOnTop {
-          StatusBadge(text: "置顶", color: .orange)
+        if let remarks = env.remarks, !remarks.isEmpty {
+          Text(remarks)
+            .font(.caption2)
+            .foregroundColor(.secondary)
+            .lineLimit(2)
         }
       }
-      Text(env.value)
-        .font(.caption)
-        .foregroundColor(.secondary)
-        .lineLimit(1)
-      if let remarks = env.remarks, !remarks.isEmpty {
-        Text(remarks)
-          .font(.caption2)
-          .foregroundColor(.secondary)
-          .lineLimit(2)
-      }
     }
-    .padding(.vertical, 4)
+    .padding(.vertical, 6)
   }
 }

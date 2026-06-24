@@ -21,6 +21,8 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.blueskycrb.qlclient
         PRODUCT_NAME: QLClient
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        TARGETED_DEVICE_FAMILY: "1"
         CODE_SIGN_STYLE: Manual
         CODE_SIGNING_ALLOWED: "NO"
         CODE_SIGNING_REQUIRED: "NO"

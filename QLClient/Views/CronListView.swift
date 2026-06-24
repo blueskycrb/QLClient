@@ -79,31 +79,40 @@ private struct CronRow: View {
   let cron: CronItem
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 8) {
-      HStack(alignment: .firstTextBaseline) {
-        Text(cron.title)
-          .font(.headline)
-          .lineLimit(2)
-        Spacer()
-        if cron.isRunning {
-          StatusBadge(text: "运行中", color: .blue)
-        } else {
-          StatusBadge(text: cron.isEnabled ? "启用" : "禁用", color: cron.isEnabled ? .green : .gray)
+    HStack(alignment: .top, spacing: 12) {
+      Image(systemName: cron.isRunning ? "play.circle.fill" : "clock")
+        .font(.system(size: 22, weight: .semibold))
+        .foregroundColor(cron.isRunning ? QLStyle.secondary : QLStyle.primary)
+        .frame(width: 38, height: 38)
+        .background((cron.isRunning ? QLStyle.secondary : QLStyle.primary).opacity(0.12), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+
+      VStack(alignment: .leading, spacing: 8) {
+        HStack(alignment: .firstTextBaseline) {
+          Text(cron.title)
+            .font(.headline)
+            .lineLimit(2)
+          Spacer(minLength: 8)
+          if cron.isRunning {
+            StatusBadge(text: "运行中", color: .blue)
+          } else {
+            StatusBadge(text: cron.isEnabled ? "启用" : "禁用", color: cron.isEnabled ? .green : .gray)
+          }
+          if cron.isPinnedOnTop {
+            StatusBadge(text: "置顶", color: .orange)
+          }
         }
-        if cron.isPinnedOnTop {
-          StatusBadge(text: "置顶", color: .orange)
-        }
-      }
-      Text(cron.command)
-        .font(.caption)
-        .foregroundColor(.secondary)
-        .lineLimit(2)
-      if let schedule = cron.schedule, !schedule.isEmpty {
-        Text(schedule)
-          .font(.caption2)
+        Text(cron.command)
+          .font(.caption)
           .foregroundColor(.secondary)
+          .lineLimit(2)
+        if let schedule = cron.schedule, !schedule.isEmpty {
+          Label(schedule, systemImage: "calendar")
+            .font(.caption2)
+            .foregroundColor(.secondary)
+            .lineLimit(1)
+        }
       }
     }
-    .padding(.vertical, 4)
+    .padding(.vertical, 6)
   }
 }

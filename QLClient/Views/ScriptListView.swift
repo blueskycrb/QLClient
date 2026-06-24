@@ -93,8 +93,10 @@ private struct ScriptFileRow: View {
   var body: some View {
     HStack(spacing: 12) {
       Image(systemName: file.isDirectory ? "folder" : "doc.text")
-        .foregroundColor(file.isDirectory ? .accentColor : .secondary)
-        .frame(width: 24)
+        .font(.system(size: 21, weight: .semibold))
+        .foregroundColor(file.isDirectory ? QLStyle.amber : QLStyle.secondary)
+        .frame(width: 38, height: 38)
+        .background((file.isDirectory ? QLStyle.amber : QLStyle.secondary).opacity(0.12), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
       VStack(alignment: .leading, spacing: 4) {
         Text(file.title)
           .font(.headline)

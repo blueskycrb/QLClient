@@ -15,6 +15,7 @@ struct RootView: View {
       }
     }
     .preferredColorScheme(selectedColorScheme)
+    .tint(QLStyle.primary)
   }
 
   private var selectedColorScheme: ColorScheme? {

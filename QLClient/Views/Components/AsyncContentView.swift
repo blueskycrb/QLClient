@@ -13,9 +13,14 @@ struct EmptyStateView: View {
 
   var body: some View {
     VStack(spacing: 12) {
-      Image(systemName: systemImage)
-        .font(.largeTitle)
-        .foregroundColor(.secondary)
+      ZStack {
+        Circle()
+          .fill(QLStyle.primary.opacity(0.12))
+          .frame(width: 76, height: 76)
+        Image(systemName: systemImage)
+          .font(.system(size: 32, weight: .semibold))
+          .foregroundColor(QLStyle.primary)
+      }
       Text(title)
         .font(.headline)
         .foregroundColor(.secondary)
@@ -31,14 +36,20 @@ struct ErrorStateView: View {
 
   var body: some View {
     VStack(spacing: 12) {
-      Image(systemName: "exclamationmark.triangle")
-        .font(.largeTitle)
-        .foregroundColor(.orange)
+      ZStack {
+        Circle()
+          .fill(Color.orange.opacity(0.14))
+          .frame(width: 76, height: 76)
+        Image(systemName: "exclamationmark.triangle")
+          .font(.system(size: 30, weight: .semibold))
+          .foregroundColor(.orange)
+      }
       Text(message)
         .multilineTextAlignment(.center)
         .foregroundColor(.secondary)
       Button("重试", action: retry)
         .buttonStyle(.borderedProminent)
+        .tint(QLStyle.primary)
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .padding()
