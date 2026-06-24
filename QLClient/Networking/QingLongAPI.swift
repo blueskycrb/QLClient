@@ -72,10 +72,19 @@ final class QingLongAPI {
   }
 
   func crons(searchText: String = "") async throws -> [CronItem] {
-    try await dataRequest(
+    let envelope: ListEnvelope<CronItem> = try await dataRequest(
       "open/crons",
       queryItems: [URLQueryItem(name: "searchValue", value: searchText)]
     )
+    return envelope.items.sortedForDisplay()
+  }
+
+  func createCron(_ payload: CronPayload) async throws {
+    try await emptyRequest("open/crons", method: "POST", body: payload)
+  }
+
+  func updateCron(_ payload: CronPayload) async throws {
+    try await emptyRequest("open/crons", method: "PUT", body: payload)
   }
 
   func runCron(id: Int) async throws {
@@ -90,16 +99,21 @@ final class QingLongAPI {
     try await emptyRequest("open/crons/\(enabled ? "enable" : "disable")", method: "PUT", body: [id])
   }
 
+  func setCronPinned(id: Int, pinned: Bool) async throws {
+    try await emptyRequest("open/crons/\(pinned ? "pin" : "unpin")", method: "PUT", body: [id])
+  }
+
   func cronLog(id: Int) async throws -> CronLog {
     let response: APIResponse<String> = try await request("open/crons/\(id)/log", method: "GET")
     return CronLog(content: response.data ?? "", status: response.logStatus)
   }
 
   func envs(searchText: String = "") async throws -> [EnvItem] {
-    try await dataRequest(
+    let items: [EnvItem] = try await dataRequest(
       "open/envs",
       queryItems: [URLQueryItem(name: "searchValue", value: searchText)]
     )
+    return items.sortedForDisplay()
   }
 
   func createEnv(name: String, value: String, remarks: String) async throws {
@@ -120,6 +134,27 @@ final class QingLongAPI {
 
   func setEnvEnabled(id: Int, enabled: Bool) async throws {
     try await emptyRequest("open/envs/\(enabled ? "enable" : "disable")", method: "PUT", body: [id])
+  }
+
+  func setEnvPinned(id: Int, pinned: Bool) async throws {
+    try await emptyRequest("open/envs/\(pinned ? "pin" : "unpin")", method: "PUT", body: [id])
+  }
+
+  func scripts(path: String = "") async throws -> [ScriptFile] {
+    try await dataRequest(
+      "open/scripts",
+      queryItems: [URLQueryItem(name: "path", value: path)]
+    )
+  }
+
+  func scriptDetail(file: String, path: String) async throws -> String {
+    try await dataRequest(
+      "open/scripts/detail",
+      queryItems: [
+        URLQueryItem(name: "file", value: file),
+        URLQueryItem(name: "path", value: path)
+      ]
+    )
   }
 
   private func dataRequest<T: Decodable>(

@@ -2,6 +2,7 @@ import SwiftUI
 
 struct SettingsView: View {
   @EnvironmentObject private var appState: AppState
+  @AppStorage("appearanceMode") private var appearanceMode = AppearanceMode.system.rawValue
   @State private var refreshError: String?
   @State private var isRefreshingToken = false
 
@@ -13,6 +14,15 @@ struct SettingsView: View {
           InfoRow(title: "Client ID", value: session.clientID)
           InfoRow(title: "Token 到期", value: expirationText(session.expiration))
         }
+      }
+
+      Section("外观") {
+        Picker("显示模式", selection: $appearanceMode) {
+          ForEach(AppearanceMode.allCases) { mode in
+            Text(mode.title).tag(mode.rawValue)
+          }
+        }
+        .pickerStyle(.segmented)
       }
 
       if let refreshError {
@@ -37,7 +47,7 @@ struct SettingsView: View {
       }
 
       Section("权限") {
-        Text("建议 Open API 应用授予 system、dashboard、crons、envs 权限。缺少某项权限时，对应页面会返回 401 或权限错误。")
+        Text("建议 Open API 应用授予 system、dashboard、crons、envs、scripts 权限。缺少某项权限时，对应页面会返回 401 或权限错误。")
           .font(.footnote)
           .foregroundColor(.secondary)
       }

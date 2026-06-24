@@ -20,6 +20,7 @@ struct EnvDetailView: View {
         InfoRow(title: "值", value: env.value)
         InfoRow(title: "备注", value: env.remarks ?? "-")
         InfoRow(title: "状态", value: env.isEnabled ? "启用" : "禁用")
+        InfoRow(title: "置顶", value: env.isPinnedOnTop ? "是" : "否")
       }
 
       if let actionError {
@@ -39,6 +40,13 @@ struct EnvDetailView: View {
           Task { await setEnabled(!env.isEnabled) }
         } label: {
           Label(env.isEnabled ? "禁用变量" : "启用变量", systemImage: env.isEnabled ? "pause.circle" : "checkmark.circle")
+        }
+        .disabled(isWorking)
+
+        Button {
+          Task { await setPinned(!env.isPinnedOnTop) }
+        } label: {
+          Label(env.isPinnedOnTop ? "取消置顶" : "置顶变量", systemImage: env.isPinnedOnTop ? "pin.slash" : "pin")
         }
         .disabled(isWorking)
       }
@@ -66,6 +74,30 @@ struct EnvDetailView: View {
         remarks: env.remarks,
         status: enabled ? 0 : 1,
         isPinned: env.isPinned,
+        position: env.position,
+        labels: env.labels
+      )
+      onChange()
+    } catch {
+      actionError = error.localizedDescription
+    }
+  }
+
+  private func setPinned(_ pinned: Bool) async {
+    guard let api = appState.api else { return }
+    isWorking = true
+    actionError = nil
+    defer { isWorking = false }
+    do {
+      try await api.setEnvPinned(id: env.id, pinned: pinned)
+      env = EnvItem(
+        id: env.id,
+        name: env.name,
+        value: env.value,
+        remarks: env.remarks,
+        status: env.status,
+        isPinned: pinned ? 1 : 0,
+        position: env.position,
         labels: env.labels
       )
       onChange()

@@ -4,6 +4,7 @@ struct CronListView: View {
   @EnvironmentObject private var appState: AppState
   @State private var state: Loadable<[CronItem]> = .idle
   @State private var searchText = ""
+  @State private var showingEditor = false
 
   var body: some View {
     Group {
@@ -20,7 +21,9 @@ struct CronListView: View {
         } else {
           List(crons) { cron in
             NavigationLink {
-              CronDetailView(cron: cron)
+              CronDetailView(cron: cron) {
+                Task { await load() }
+              }
             } label: {
               CronRow(cron: cron)
             }
@@ -32,13 +35,25 @@ struct CronListView: View {
     .navigationTitle("定时任务")
     .searchable(text: $searchText, prompt: "搜索任务")
     .toolbar {
-      ToolbarItem(placement: .navigationBarTrailing) {
+      ToolbarItemGroup(placement: .navigationBarTrailing) {
+        Button {
+          showingEditor = true
+        } label: {
+          Image(systemName: "plus")
+        }
+
         Button {
           Task { await load() }
         } label: {
           Image(systemName: "arrow.clockwise")
         }
       }
+    }
+    .sheet(isPresented: $showingEditor) {
+      CronEditorView(cron: nil) {
+        Task { await load() }
+      }
+      .environmentObject(appState)
     }
     .task { await load() }
     .task(id: searchText) {
@@ -74,6 +89,9 @@ private struct CronRow: View {
           StatusBadge(text: "运行中", color: .blue)
         } else {
           StatusBadge(text: cron.isEnabled ? "启用" : "禁用", color: cron.isEnabled ? .green : .gray)
+        }
+        if cron.isPinnedOnTop {
+          StatusBadge(text: "置顶", color: .orange)
         }
       }
       Text(cron.command)

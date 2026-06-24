@@ -2,6 +2,7 @@ import SwiftUI
 
 struct RootView: View {
   @EnvironmentObject private var appState: AppState
+  @AppStorage("appearanceMode") private var appearanceMode = AppearanceMode.system.rawValue
 
   var body: some View {
     Group {
@@ -13,6 +14,11 @@ struct RootView: View {
         MainTabView()
       }
     }
+    .preferredColorScheme(selectedColorScheme)
+  }
+
+  private var selectedColorScheme: ColorScheme? {
+    (AppearanceMode(rawValue: appearanceMode) ?? .system).colorScheme
   }
 }
 
@@ -36,6 +42,12 @@ struct MainTabView: View {
       }
       .navigationViewStyle(.stack)
       .tabItem { Label("变量", systemImage: "list.bullet.rectangle") }
+
+      NavigationView {
+        ScriptListView()
+      }
+      .navigationViewStyle(.stack)
+      .tabItem { Label("脚本", systemImage: "doc.text") }
 
       NavigationView {
         SettingsView()

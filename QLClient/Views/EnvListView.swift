@@ -86,6 +86,9 @@ private struct EnvRow: View {
           .lineLimit(1)
         Spacer()
         StatusBadge(text: env.isEnabled ? "启用" : "禁用", color: env.isEnabled ? .green : .gray)
+        if env.isPinnedOnTop {
+          StatusBadge(text: "置顶", color: .orange)
+        }
       }
       Text(env.value)
         .font(.caption)
