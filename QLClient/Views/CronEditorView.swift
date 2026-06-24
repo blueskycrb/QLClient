@@ -25,7 +25,7 @@ struct CronEditorView: View {
   var body: some View {
     NavigationView {
       Form {
-        Section("任务") {
+        Section {
           TextField("名称", text: $name)
           TextField("命令，例如 task demo.js", text: $command)
             .textInputAutocapitalization(.never)
@@ -34,6 +34,8 @@ struct CronEditorView: View {
             .textInputAutocapitalization(.never)
             .disableAutocorrection(true)
           TextField("标签，多个用逗号分隔", text: $labelsText)
+        } header: {
+          Text("任务")
         } footer: {
           Text("支持普通 cron 表达式，也支持青龙服务端支持的特殊 schedule。")
         }

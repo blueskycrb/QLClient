@@ -31,6 +31,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p build
+          set +e
           xcodebuild \
             -project QLClient.xcodeproj \
             -scheme QLClient \
@@ -41,6 +42,13 @@ jobs:
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY="" \
             build 2>&1 | tee build/xcodebuild.log
+          status=${PIPESTATUS[0]}
+          if [ "$status" -ne 0 ]; then
+            grep -E "error:|warning:" build/xcodebuild.log | tail -n 40 | while IFS= read -r line; do
+              echo "::error ::$line"
+            done
+            exit "$status"
+          fi
 
       - name: Package IPA
         run: |
