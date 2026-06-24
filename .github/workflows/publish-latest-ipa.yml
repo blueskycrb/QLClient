@@ -1,0 +1,86 @@
+name: Publish latest IPA
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Locate latest IPA
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          ipa_path="$(find versions -type f -name 'qlmb-adhoc.ipa' | sort -V | tail -n 1)"
+          if [ -z "$ipa_path" ]; then
+            echo "No qlmb-adhoc.ipa file found under versions/." >&2
+            exit 1
+          fi
+
+          mkdir -p build
+          cp "$ipa_path" build/qlmb-adhoc.ipa
+
+          build_info="${ipa_path%/qlmb-adhoc.ipa}/BUILD_INFO.json"
+          release_notes="${ipa_path%/qlmb-adhoc.ipa}/RELEASE_NOTES.md"
+
+          echo "IPA_PATH=build/qlmb-adhoc.ipa" >> "$GITHUB_ENV"
+          echo "BUILD_INFO=$build_info" >> "$GITHUB_ENV"
+          echo "RELEASE_NOTES=$release_notes" >> "$GITHUB_ENV"
+          echo "Using IPA: $ipa_path"
+
+      - name: Prepare release notes
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          {
+            echo "# qlmb latest unsigned IPA"
+            echo
+            echo "This release publishes the latest checked-in IPA from the versions directory as a direct .ipa asset."
+            echo
+            echo "The current repository does not include a complete Xcode project or source files, so this workflow republishes the existing IPA instead of rebuilding it from source."
+            echo
+            if [ -f "$BUILD_INFO" ]; then
+              echo "## Build info"
+              echo
+              echo '```json'
+              cat "$BUILD_INFO"
+              echo
+              echo '```'
+              echo
+            fi
+            if [ -f "$RELEASE_NOTES" ]; then
+              echo "## Original release notes"
+              echo
+              cat "$RELEASE_NOTES"
+            fi
+          } > release-notes.md
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          tag="unsigned-latest"
+          gh release delete "$tag" --yes --cleanup-tag || true
+          git tag -f "$tag" "$GITHUB_SHA"
+          git push --force origin "refs/tags/$tag"
+
+          gh release create "$tag" \
+            "$IPA_PATH#qlmb-adhoc.ipa" \
+            --title "Latest qlmb IPA" \
+            --notes-file release-notes.md \
+            --latest=false

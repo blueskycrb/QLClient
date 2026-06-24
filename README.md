@@ -1,64 +1,43 @@
 # ql_ios
-青龙 IOS客户端
-# iOS Unsigned IPA Usage Guide (无证书 IPA 使用指南)
 
-[English](#english) | [中文](#chinese)
+青龙 iOS 客户端归档仓库。
 
-<a name="chinese"></a>
-## 🇨🇳 中文
-### 🚀 为什么要使用无证书 IPA?
+## 当前状态
 
-- **无需开发者账号**: 不需要支付 $99/年的 Apple Developer Program 费用。
-- **支持 TrollStore**: 如果您的设备支持 TrollStore (通常是 iOS 14.0 - 17.0)，可以永久安装应用并获得完整权限。
-- **自签名支持**: 您可以使用免费的 Apple ID 进行签名安装 (有效期 7 天，之后需重签)。
+这个仓库目前包含历史 IPA 包、打包脚本和一个共享 Xcode scheme，但缺少完整的 Xcode 工程文件和源代码：
 
-###  安装指南
+- 缺少 `amz_profit_calculator.xcodeproj/project.pbxproj`
+- 缺少 `.swift`、`.m`、`.h`、`.plist`、Storyboard 等源码文件
+- `versions/v1.0.21_20260527_1909/BUILD_INFO.json` 显示最新包来自 `feature/app-store-subscription` 分支的 `eac2f80` 提交，但该源码分支不在当前公开仓库中
 
-#### 方案 1: TrollStore (推荐)
-**要求**: 支持的 iOS 版本 (通常是 iOS 14.0 - 17.0)。
-1. 将 `qlmb.ipa` 传输到您的 iPhone (通过 AirDrop, iCloud 等)。
-2. 在手机上打开 **TrollStore**。
-3. 点击右上角的 `+` -> `Install IPA from File`。
-4. 选择 `qlmb.ipa` 文件。
-5. **完成！** 应用已永久安装。
+因此，当前仓库不能从源码重新构建 IPA，也不能直接修改代码来适配青龙网页版的新功能。要继续开发，需要补齐真实源码工程。
 
-#### 方案 2: Sideloadly / AltStore (自签名)
-**要求**: 任意 iOS 设备，一台电脑，以及一个免费的 Apple ID。
-1. 下载并安装 [Sideloadly](https://sideloadly.io/) 或 [AltStore](https://altstore.io/)。
-2. 将 iPhone 连接到电脑。
-3. 将 `qlmb.ipa` 拖入 Sideloadly。
-4. 输入您的 Apple ID 邮箱。
-5. 点击 **Start** 开始安装。
-6. **注意**: 免费账号每 7 天需要重新签名。
+## 直接下载 IPA
 
----
+仓库包含已归档的 IPA 文件。GitHub Actions 会把 `versions/` 目录下最新的 `qlmb-adhoc.ipa` 发布到 `unsigned-latest` Release，下载 Release 里的 `.ipa` 文件即可，不需要把 zip 改后缀。
 
-<a name="english"></a>
-## 🇬🇧 English
-### 🚀 Why use Unsigned IPA?
+安装到 TrollStore 时请直接使用 Release 资产中的 `qlmb-adhoc.ipa`。
 
-- **No Developer Account Required**: You don't need to pay $99/year for an Apple Developer Program account.
-- **TrollStore Support**: If your device supports TrollStore (iOS 14.0 - 17.0, depending on version), you can install it permanently with full system permissions.
-- **Self-Signing**: You can use your own free Apple ID to sign and install the app (expires every 7 days).
+## 本地安装
 
-### 📱 Installation Guide
+### TrollStore
 
-#### Option 1: TrollStore (Recommended)
-**Requirements**: Supported iOS version (iOS 14.0 - 17.0 typically).
-1. Transfer the `qlmb.ipa` to your iPhone (via AirDrop, iCloud, etc.).
-2. Open **TrollStore** on your phone.
-3. Tap `+` -> `Install IPA from File`.
-4. Select the `qlmb.ipa`.
-5. **Done!** The app is installed permanently and has extended privileges.
+1. 下载 Release 里的 `qlmb-adhoc.ipa`。
+2. 把 IPA 传到 iPhone。
+3. 在 TrollStore 中点击 `+`，选择 `Install IPA from File`。
+4. 选择 `qlmb-adhoc.ipa` 安装。
 
-#### Option 2: Sideloadly / AltStore (Self-Signing)
-**Requirements**: Any iOS device, a computer, and a free Apple ID.
-1. Download and install [Sideloadly](https://sideloadly.io/) or [AltStore](https://altstore.io/).
-2. Connect your iPhone to the computer.
-3. Drag `qlmb.ipa` into Sideloadly.
-4. Enter your Apple ID email.
-5. Click **Start**.
-6. **Note**: Free accounts require re-signing every 7 days.
+### Sideloadly / AltStore
 
+如果不用 TrollStore，可以用 Sideloadly 或 AltStore 重新签名安装。免费 Apple ID 通常需要 7 天重新签名一次。
 
+## 重新构建所需文件
 
+如果要真正构建新版 IPA、优化代码或适配青龙网页版新功能，请补齐以下内容：
+
+- 完整 `.xcodeproj` 或 `.xcworkspace`
+- iOS 源码文件
+- `Info.plist`、资源文件、Core Data model 等工程依赖
+- 可用的构建 scheme
+
+补齐后可以再把 GitHub Actions 改成真正的 Xcode 构建流程。
