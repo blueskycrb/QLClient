@@ -1,0 +1,67 @@
+name: Build QLClient iOS IPA
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - "QLClient/**"
+      - "Project.yml"
+      - ".github/workflows/build-qlclient-ios.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: macos-15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Build unsigned app
+        run: |
+          set -euo pipefail
+          xcodebuild \
+            -project QLClient.xcodeproj \
+            -scheme QLClient \
+            -configuration Release \
+            -destination "generic/platform=iOS" \
+            -derivedDataPath build/DerivedData \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            build
+
+      - name: Package IPA
+        run: |
+          set -euo pipefail
+          app_path="build/DerivedData/Build/Products/Release-iphoneos/QLClient.app"
+          test -d "$app_path"
+          rm -rf build/Payload build/QLClient-unsigned.ipa
+          mkdir -p build/Payload
+          cp -R "$app_path" build/Payload/
+          (cd build && zip -qry QLClient-unsigned.ipa Payload)
+
+      - name: Publish unsigned IPA release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag="qlclient-unsigned-latest"
+          gh release delete "$tag" --yes --cleanup-tag || true
+          git tag -f "$tag" "$GITHUB_SHA"
+          git push --force origin "refs/tags/$tag"
+          gh release create "$tag" \
+            "build/QLClient-unsigned.ipa#QLClient-unsigned.ipa" \
+            --title "QLClient unsigned IPA" \
+            --notes "Unsigned SwiftUI QingLong client. Install with TrollStore or sign manually." \
+            --latest=false

@@ -1,0 +1,28 @@
+name: QLClient
+options:
+  bundleIdPrefix: com.blueskycrb
+  deploymentTarget:
+    iOS: "16.0"
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    IPHONEOS_DEPLOYMENT_TARGET: "16.0"
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+targets:
+  QLClient:
+    type: application
+    platform: iOS
+    sources:
+      - path: QLClient
+    info:
+      path: QLClient/Resources/Info.plist
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.blueskycrb.qlclient
+        PRODUCT_NAME: QLClient
+        CODE_SIGN_STYLE: Manual
+        CODE_SIGNING_ALLOWED: "NO"
+        CODE_SIGNING_REQUIRED: "NO"
+    dependencies:
+      - sdk: Security.framework
