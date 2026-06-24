@@ -8,7 +8,6 @@
 
 - `GET /open/auth/token`
 - `GET /open/system`
-- `GET /open/dashboard/overview`
 - `GET /open/crons`
 - `PUT /open/crons/run`
 - `PUT /open/crons/stop`
@@ -21,7 +20,7 @@
 - `PUT /open/envs/enable`
 - `PUT /open/envs/disable`
 
-当前第一版覆盖登录、系统概览、任务列表、任务运行/停止/启停、任务日志、环境变量列表、变量新增/编辑/启停。脚本文件、订阅、依赖管理等危险操作先不放进第一版，后续可以继续扩展。
+当前第一版覆盖登录、系统信息、任务列表、任务运行/停止/启停、任务日志、环境变量列表、变量新增/编辑/启停。脚本文件、订阅、依赖管理等危险操作先不放进第一版，后续可以继续扩展。
 
 后续版本补充了：
 

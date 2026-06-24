@@ -3,6 +3,7 @@ import SwiftUI
 struct SettingsView: View {
   @EnvironmentObject private var appState: AppState
   @AppStorage("appearanceMode") private var appearanceMode = AppearanceMode.system.rawValue
+  @State private var systemState: Loadable<SystemInfo> = .idle
   @State private var refreshError: String?
   @State private var isRefreshingToken = false
 
@@ -13,6 +14,21 @@ struct SettingsView: View {
           InfoRow(title: "服务器", value: session.baseURL.absoluteString)
           InfoRow(title: "Client ID", value: session.clientID)
           InfoRow(title: "Token 到期", value: expirationText(session.expiration))
+        }
+      }
+
+      Section("服务端") {
+        switch systemState {
+        case .idle, .loading:
+          ProgressView()
+        case .failed(let message):
+          Text(message).foregroundColor(.red)
+        case .loaded(let info):
+          InfoRow(title: "版本", value: info.version ?? "-")
+          InfoRow(title: "分支", value: info.branch ?? "-")
+          if let isInitialized = info.isInitialized {
+            InfoRow(title: "初始化", value: isInitialized ? "已完成" : "未初始化")
+          }
         }
       }
 
@@ -47,12 +63,14 @@ struct SettingsView: View {
       }
 
       Section("权限") {
-        Text("建议 Open API 应用授予 system、dashboard、crons、envs、scripts 权限。缺少某项权限时，对应页面会返回 401 或权限错误。")
+        Text("建议 Open API 应用授予 system、crons、envs、scripts 权限。缺少某项权限时，对应页面会返回 401 或权限错误。")
           .font(.footnote)
           .foregroundColor(.secondary)
       }
     }
     .navigationTitle("设置")
+    .task { await loadSystemInfo() }
+    .refreshable { await loadSystemInfo() }
   }
 
   private func refreshToken() async {
@@ -69,5 +87,15 @@ struct SettingsView: View {
   private func expirationText(_ timestamp: Int) -> String {
     let date = Date(timeIntervalSince1970: TimeInterval(timestamp))
     return date.formatted(date: .abbreviated, time: .shortened)
+  }
+
+  private func loadSystemInfo() async {
+    guard let api = appState.api else { return }
+    systemState = .loading
+    do {
+      systemState = .loaded(try await api.systemInfo())
+    } catch {
+      systemState = .failed(error.localizedDescription)
+    }
   }
 }

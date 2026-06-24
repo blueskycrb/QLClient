@@ -27,12 +27,6 @@ struct MainTabView: View {
   var body: some View {
     TabView {
       NavigationView {
-        DashboardView()
-      }
-      .navigationViewStyle(.stack)
-      .tabItem { Label("概览", systemImage: "gauge.medium") }
-
-      NavigationView {
         CronListView()
       }
       .navigationViewStyle(.stack)

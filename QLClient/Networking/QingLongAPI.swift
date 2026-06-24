@@ -67,10 +67,6 @@ final class QingLongAPI {
     try await dataRequest("open/system")
   }
 
-  func dashboardOverview() async throws -> DashboardOverview {
-    try await dataRequest("open/dashboard/overview")
-  }
-
   func crons(searchText: String = "") async throws -> [CronItem] {
     let envelope: ListEnvelope<CronItem> = try await dataRequest(
       "open/crons",

@@ -34,17 +34,6 @@ struct SystemInfo: Decodable {
   let changeLogLink: String?
 }
 
-struct DashboardOverview: Decodable {
-  let total: Int?
-  let enabled: Int?
-  let disabled: Int?
-  let todayRuns: Int?
-  let todaySuccess: Int?
-  let todayFail: Int?
-  let successRate: String?
-  let avgTime: Int?
-}
-
 struct ListEnvelope<Item: Decodable>: Decodable {
   let items: [Item]
   let total: Int?

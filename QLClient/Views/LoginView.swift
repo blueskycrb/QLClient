@@ -34,7 +34,7 @@ struct LoginView: View {
             InputRow(title: "Client ID", placeholder: "Client ID", text: $clientID)
             InputRow(title: "Client Secret", placeholder: "Client Secret", text: $clientSecret)
 
-            Text("在青龙 Web 面板创建 Open API 应用，并授予 system、dashboard、crons、envs、scripts 权限。Client Secret 使用普通输入框，以支持微信输入法等第三方键盘。")
+            Text("在青龙 Web 面板创建 Open API 应用，并授予 system、crons、envs、scripts 权限。Client Secret 使用普通输入框，以支持微信输入法等第三方键盘。")
               .font(.footnote)
               .foregroundColor(.secondary)
               .fixedSize(horizontal: false, vertical: true)
