@@ -266,7 +266,7 @@ struct ScriptFile: Identifiable, Decodable, Hashable {
   }
 }
 
-enum ScriptFileType: String, Decodable {
+enum ScriptFileType: String, Decodable, Hashable {
   case directory
   case file
 }
