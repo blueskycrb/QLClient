@@ -5,6 +5,7 @@ struct EnvListView: View {
   @State private var state: Loadable<[EnvItem]> = .idle
   @State private var searchText = ""
   @State private var showingEditor = false
+  @State private var searchTask: Task<Void, Never>?
 
   var body: some View {
     Group {
@@ -13,7 +14,7 @@ struct EnvListView: View {
         ProgressView("正在加载变量")
       case .failed(let message):
         ErrorStateView(message: message) {
-          Task { await load() }
+          Task { await load(showLoading: true) }
         }
       case .loaded(let envs):
         if envs.isEmpty {
@@ -22,7 +23,7 @@ struct EnvListView: View {
           List(envs) { env in
             NavigationLink {
               EnvDetailView(env: env) {
-                Task { await load() }
+                Task { await load(showLoading: false) }
               }
             } label: {
               EnvRow(env: env)
@@ -43,7 +44,7 @@ struct EnvListView: View {
         }
 
         Button {
-          Task { await load() }
+          Task { await load(showLoading: false) }
         } label: {
           Image(systemName: "arrow.clockwise")
         }
@@ -51,22 +52,33 @@ struct EnvListView: View {
     }
     .sheet(isPresented: $showingEditor) {
       EnvEditorView(env: nil) {
-        Task { await load() }
+        Task { await load(showLoading: false) }
       }
       .environmentObject(appState)
     }
-    .task { await load() }
-    .task(id: searchText) {
-      try? await Task.sleep(nanoseconds: 300_000_000)
-      guard !Task.isCancelled else { return }
-      await load()
+    .task { await loadIfNeeded() }
+    .onChange(of: searchText) { _ in
+      searchTask?.cancel()
+      searchTask = Task {
+        try? await Task.sleep(nanoseconds: 300_000_000)
+        guard !Task.isCancelled else { return }
+        await load(showLoading: false)
+      }
     }
-    .refreshable { await load() }
+    .refreshable { await load(showLoading: false) }
   }
 
-  private func load() async {
+  private func loadIfNeeded() async {
+    if case .idle = state {
+      await load(showLoading: true)
+    }
+  }
+
+  private func load(showLoading: Bool) async {
     guard let api = appState.api else { return }
-    state = .loading
+    if showLoading {
+      state = .loading
+    }
     do {
       state = .loaded(try await api.envs(searchText: searchText))
     } catch {

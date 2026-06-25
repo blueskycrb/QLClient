@@ -20,7 +20,7 @@ struct ScriptListView: View {
         ProgressView("正在加载脚本")
       case .failed(let message):
         ErrorStateView(message: message) {
-          Task { await load() }
+          Task { await load(showLoading: true) }
         }
       case .loaded(let files):
         let filtered = filteredFiles(files)
@@ -51,19 +51,27 @@ struct ScriptListView: View {
     .toolbar {
       ToolbarItem(placement: .navigationBarTrailing) {
         Button {
-          Task { await load() }
+          Task { await load(showLoading: false) }
         } label: {
           Image(systemName: "arrow.clockwise")
         }
       }
     }
-    .task { await load() }
-    .refreshable { await load() }
+    .task { await loadIfNeeded() }
+    .refreshable { await load(showLoading: false) }
   }
 
-  private func load() async {
+  private func loadIfNeeded() async {
+    if case .idle = state {
+      await load(showLoading: true)
+    }
+  }
+
+  private func load(showLoading: Bool) async {
     guard let api = appState.api else { return }
-    state = .loading
+    if showLoading {
+      state = .loading
+    }
     do {
       state = .loaded(try await api.scripts(path: path))
     } catch {

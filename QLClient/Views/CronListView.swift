@@ -5,6 +5,7 @@ struct CronListView: View {
   @State private var state: Loadable<[CronItem]> = .idle
   @State private var searchText = ""
   @State private var showingEditor = false
+  @State private var searchTask: Task<Void, Never>?
 
   var body: some View {
     Group {
@@ -13,7 +14,7 @@ struct CronListView: View {
         ProgressView("正在加载任务")
       case .failed(let message):
         ErrorStateView(message: message) {
-          Task { await load() }
+          Task { await load(showLoading: true) }
         }
       case .loaded(let crons):
         if crons.isEmpty {
@@ -22,7 +23,7 @@ struct CronListView: View {
           List(crons) { cron in
             NavigationLink {
               CronDetailView(cron: cron) {
-                Task { await load() }
+                Task { await load(showLoading: false) }
               }
             } label: {
               CronRow(cron: cron)
@@ -43,7 +44,7 @@ struct CronListView: View {
         }
 
         Button {
-          Task { await load() }
+          Task { await load(showLoading: false) }
         } label: {
           Image(systemName: "arrow.clockwise")
         }
@@ -51,22 +52,33 @@ struct CronListView: View {
     }
     .sheet(isPresented: $showingEditor) {
       CronEditorView(cron: nil) {
-        Task { await load() }
+        Task { await load(showLoading: false) }
       }
       .environmentObject(appState)
     }
-    .task { await load() }
-    .task(id: searchText) {
-      try? await Task.sleep(nanoseconds: 300_000_000)
-      guard !Task.isCancelled else { return }
-      await load()
+    .task { await loadIfNeeded() }
+    .onChange(of: searchText) { _ in
+      searchTask?.cancel()
+      searchTask = Task {
+        try? await Task.sleep(nanoseconds: 300_000_000)
+        guard !Task.isCancelled else { return }
+        await load(showLoading: false)
+      }
     }
-    .refreshable { await load() }
+    .refreshable { await load(showLoading: false) }
   }
 
-  private func load() async {
+  private func loadIfNeeded() async {
+    if case .idle = state {
+      await load(showLoading: true)
+    }
+  }
+
+  private func load(showLoading: Bool) async {
     guard let api = appState.api else { return }
-    state = .loading
+    if showLoading {
+      state = .loading
+    }
     do {
       state = .loaded(try await api.crons(searchText: searchText))
     } catch {

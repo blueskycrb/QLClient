@@ -223,6 +223,12 @@ struct EnvUpdatePayload: Encodable {
   let labels: [String]?
 }
 
+struct ScriptUpdatePayload: Encodable {
+  let filename: String
+  let path: String
+  let content: String
+}
+
 struct ScriptFile: Identifiable, Decodable, Hashable {
   let title: String
   let key: String

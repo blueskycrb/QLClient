@@ -153,6 +153,11 @@ final class QingLongAPI {
     )
   }
 
+  func updateScript(file: String, path: String, content: String) async throws {
+    let payload = ScriptUpdatePayload(filename: file, path: path, content: content)
+    try await emptyRequest("open/scripts", method: "PUT", body: payload)
+  }
+
   private func dataRequest<T: Decodable>(
     _ path: String,
     queryItems: [URLQueryItem] = []
