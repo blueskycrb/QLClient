@@ -6,6 +6,7 @@ struct SettingsView: View {
   @State private var systemState: Loadable<SystemInfo> = .idle
   @State private var refreshError: String?
   @State private var isRefreshingToken = false
+  @State private var showingAddAccount = false
 
   var body: some View {
     List {
@@ -14,6 +15,43 @@ struct SettingsView: View {
           InfoRow(title: "服务器", value: session.baseURL.absoluteString)
           InfoRow(title: "Client ID", value: session.clientID)
           InfoRow(title: "Token 到期", value: expirationText(session.expiration))
+        }
+      }
+
+      Section("账号") {
+        ForEach(appState.accounts) { account in
+          Button {
+            appState.switchAccount(id: account.id)
+          } label: {
+            HStack(spacing: 12) {
+              Image(systemName: appState.session?.accountID == account.id ? "checkmark.circle.fill" : "server.rack")
+                .foregroundColor(appState.session?.accountID == account.id ? QLStyle.primary : .secondary)
+                .frame(width: 26)
+
+              VStack(alignment: .leading, spacing: 3) {
+                Text(account.displayName)
+                  .foregroundColor(.primary)
+                Text(account.detailText)
+                  .font(.caption)
+                  .foregroundColor(.secondary)
+              }
+
+              Spacer()
+            }
+          }
+          .swipeActions {
+            Button(role: .destructive) {
+              appState.deleteAccount(id: account.id)
+            } label: {
+              Label("删除", systemImage: "trash")
+            }
+          }
+        }
+
+        Button {
+          showingAddAccount = true
+        } label: {
+          Label("添加账号", systemImage: "plus.circle")
         }
       }
 
@@ -63,7 +101,7 @@ struct SettingsView: View {
         Button(role: .destructive) {
           appState.signOut()
         } label: {
-          Label("退出登录", systemImage: "rectangle.portrait.and.arrow.right")
+          Label("移除当前账号", systemImage: "rectangle.portrait.and.arrow.right")
         }
       }
 
@@ -74,6 +112,12 @@ struct SettingsView: View {
       }
     }
     .navigationTitle("设置")
+    .sheet(isPresented: $showingAddAccount) {
+      LoginView {
+        showingAddAccount = false
+      }
+      .environmentObject(appState)
+    }
     .task { await loadSystemInfo() }
     .refreshable { await loadSystemInfo() }
   }

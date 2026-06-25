@@ -34,6 +34,7 @@ enum AppearanceMode: String, CaseIterable, Identifiable {
 @MainActor
 final class AppState: ObservableObject {
   @Published private(set) var session: QingLongSession?
+  @Published private(set) var accounts: [StoredCredentials] = []
   @Published var isRestoringSession = true
   @Published var signInError: String?
 
@@ -50,39 +51,32 @@ final class AppState: ObservableObject {
 
   func restoreSession() async {
     defer { isRestoringSession = false }
+    accounts = credentialStore.loadAccounts()
     guard let stored = credentialStore.load() else { return }
-    session = QingLongSession(
-      baseURL: stored.baseURL,
-      clientID: stored.clientID,
-      token: stored.token,
-      expiration: stored.expiration
-    )
+    session = makeSession(from: stored)
   }
 
-  func signIn(baseURL: String, clientID: String, clientSecret: String) async {
+  @discardableResult
+  func signIn(baseURL: String, clientID: String, clientSecret: String) async -> Bool {
     signInError = nil
     do {
       let normalizedURL = try QingLongAPI.normalizedBaseURL(from: baseURL)
       let client = QingLongAPI(baseURL: normalizedURL)
       let token = try await client.authenticate(clientID: clientID, clientSecret: clientSecret)
-      let newSession = QingLongSession(
+      let credentials = StoredCredentials(
         baseURL: normalizedURL,
         clientID: clientID,
+        clientSecret: clientSecret,
         token: token.token,
         expiration: token.expiration
       )
-      credentialStore.save(
-        StoredCredentials(
-          baseURL: normalizedURL,
-          clientID: clientID,
-          clientSecret: clientSecret,
-          token: token.token,
-          expiration: token.expiration
-        )
-      )
-      session = newSession
+      credentialStore.save(credentials)
+      accounts = credentialStore.loadAccounts()
+      session = makeSession(from: credentials)
+      return true
     } catch {
       signInError = error.localizedDescription
+      return false
     }
   }
 
@@ -93,21 +87,50 @@ final class AppState: ObservableObject {
     stored.token = token.token
     stored.expiration = token.expiration
     credentialStore.save(stored)
-    session = QingLongSession(
-      baseURL: stored.baseURL,
-      clientID: stored.clientID,
-      token: token.token,
-      expiration: token.expiration
-    )
+    accounts = credentialStore.loadAccounts()
+    session = makeSession(from: stored)
+  }
+
+  func switchAccount(id: String) {
+    guard let stored = credentialStore.setActiveAccount(id: id) else { return }
+    signInError = nil
+    accounts = credentialStore.loadAccounts()
+    session = makeSession(from: stored)
+  }
+
+  func deleteAccount(id: String) {
+    let next = credentialStore.deleteAccount(id: id)
+    accounts = credentialStore.loadAccounts()
+    if let next {
+      session = makeSession(from: next)
+    } else {
+      session = nil
+    }
   }
 
   func signOut() {
-    credentialStore.delete()
-    session = nil
+    if let session {
+      deleteAccount(id: session.accountID)
+    } else {
+      credentialStore.delete()
+      accounts = []
+      session = nil
+    }
+  }
+
+  private func makeSession(from stored: StoredCredentials) -> QingLongSession {
+    QingLongSession(
+      accountID: stored.id,
+      baseURL: stored.baseURL,
+      clientID: stored.clientID,
+      token: stored.token,
+      expiration: stored.expiration
+    )
   }
 }
 
 struct QingLongSession: Equatable {
+  let accountID: String
   let baseURL: URL
   let clientID: String
   let token: String

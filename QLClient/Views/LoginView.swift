@@ -7,6 +7,7 @@ struct LoginView: View {
   @State private var clientID = ""
   @State private var clientSecret = ""
   @State private var isSigningIn = false
+  var onSignedIn: (() -> Void)?
 
   var body: some View {
     NavigationView {
@@ -78,8 +79,11 @@ struct LoginView: View {
 
   private func signIn() async {
     isSigningIn = true
-    await appState.signIn(baseURL: baseURL, clientID: clientID, clientSecret: clientSecret)
+    let signedIn = await appState.signIn(baseURL: baseURL, clientID: clientID, clientSecret: clientSecret)
     isSigningIn = false
+    if signedIn {
+      onSignedIn?()
+    }
   }
 }
 
