@@ -5,6 +5,9 @@ on:
   push:
     branches:
       - main
+    paths:
+      - "versions/**"
+      - ".github/workflows/publish-latest-ipa.yml"
 
 permissions:
   contents: write

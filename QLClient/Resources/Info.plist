@@ -20,6 +20,10 @@
   <string>$(MARKETING_VERSION)</string>
   <key>CFBundleVersion</key>
   <string>$(CURRENT_PROJECT_VERSION)</string>
+  <key>QLBuildCommit</key>
+  <string>$(QL_BUILD_COMMIT)</string>
+  <key>QLBuildTime</key>
+  <string>$(QL_BUILD_TIME)</string>
   <key>LSRequiresIPhoneOS</key>
   <true/>
   <key>MinimumOSVersion</key>

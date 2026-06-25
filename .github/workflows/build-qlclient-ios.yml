@@ -27,6 +27,13 @@ jobs:
       - name: Generate Xcode project
         run: xcodegen generate
 
+      - name: Prepare build metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "SHORT_SHA=${GITHUB_SHA::7}" >> "$GITHUB_ENV"
+          echo "BUILD_TIME=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_ENV"
+
       - name: Build unsigned app
         run: |
           set -euo pipefail
@@ -41,6 +48,10 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY="" \
+            MARKETING_VERSION=0.1.1 \
+            CURRENT_PROJECT_VERSION="$GITHUB_RUN_NUMBER" \
+            QL_BUILD_COMMIT="$SHORT_SHA" \
+            QL_BUILD_TIME="$BUILD_TIME" \
             build 2>&1 | tee build/xcodebuild.log
           status=${PIPESTATUS[0]}
           if [ "$status" -ne 0 ]; then
@@ -65,12 +76,23 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          tag="qlclient-unsigned-latest"
-          gh release delete "$tag" --yes --cleanup-tag || true
-          git tag -f "$tag" "$GITHUB_SHA"
-          git push --force origin "refs/tags/$tag"
-          gh release create "$tag" \
+          fixed_tag="qlclient-unsigned-${SHORT_SHA}"
+          latest_tag="qlclient-unsigned-latest"
+
+          gh release delete "$fixed_tag" --yes --cleanup-tag || true
+          git tag -f "$fixed_tag" "$GITHUB_SHA"
+          git push --force origin "refs/tags/$fixed_tag"
+          gh release create "$fixed_tag" \
             "build/QLClient-unsigned.ipa#QLClient-unsigned.ipa" \
-            --title "QLClient unsigned IPA" \
-            --notes "Unsigned SwiftUI QingLong client. Install with TrollStore or sign manually." \
+            --title "QLClient unsigned IPA ${SHORT_SHA}" \
+            --notes "Unsigned SwiftUI QingLong client built from ${GITHUB_SHA}. Install with TrollStore or sign manually." \
+            --latest=false
+
+          gh release delete "$latest_tag" --yes --cleanup-tag || true
+          git tag -f "$latest_tag" "$GITHUB_SHA"
+          git push --force origin "refs/tags/$latest_tag"
+          gh release create "$latest_tag" \
+            "build/QLClient-unsigned.ipa#QLClient-unsigned.ipa" \
+            --title "QLClient unsigned IPA latest" \
+            --notes "Latest unsigned SwiftUI QingLong client. Current build: ${GITHUB_SHA}." \
             --latest=false

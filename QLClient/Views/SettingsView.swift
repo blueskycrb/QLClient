@@ -41,6 +41,11 @@ struct SettingsView: View {
         .pickerStyle(.segmented)
       }
 
+      Section("客户端") {
+        InfoRow(title: "版本", value: appVersionText)
+        InfoRow(title: "构建", value: buildCommit)
+      }
+
       if let refreshError {
         Section {
           Text(refreshError).foregroundColor(.red)
@@ -97,5 +102,15 @@ struct SettingsView: View {
     } catch {
       systemState = .failed(error.localizedDescription)
     }
+  }
+
+  private var appVersionText: String {
+    let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "-"
+    let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "-"
+    return "\(version) (\(build))"
+  }
+
+  private var buildCommit: String {
+    Bundle.main.object(forInfoDictionaryKey: "QLBuildCommit") as? String ?? "-"
   }
 }
