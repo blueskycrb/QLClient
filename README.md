@@ -1,75 +1,74 @@
-# ql_ios
+# QLClient
 
-青龙 iOS 客户端归档仓库。
+QLClient 是一个面向青龙面板的 iOS 客户端，使用 SwiftUI 编写，最低支持 iOS 16。它通过青龙 Open API 连接你的服务端，可以在手机上管理定时任务、环境变量和脚本文件。
 
-## 新版 SwiftUI 客户端
+## 功能
 
-仓库已新增一个从零实现的青龙 iOS 客户端源码，位于 `QLClient/`。它基于 `whyour/qinglong` 当前服务端源码中的 Open API：
+- Open API 登录，支持保存多个青龙账号
+- 顶部账号按钮快速切换账号
+- 白天模式、夜间模式、跟随系统
+- 定时任务列表、运行、停止、启用、禁用
+- 定时任务新增、编辑、置顶、取消置顶
+- 定时任务日志查看
+- 环境变量列表、新增、编辑、启用、禁用
+- 环境变量置顶、取消置顶，并按网页版规则排序
+- 脚本目录浏览、脚本内容查看和编辑保存
+- 兼容青龙 v2.20.0 的任务、变量和脚本返回格式
 
-- `GET /open/auth/token`
-- `GET /open/system`
-- `GET /open/crons`
-- `PUT /open/crons/run`
-- `PUT /open/crons/stop`
-- `PUT /open/crons/enable`
-- `PUT /open/crons/disable`
-- `GET /open/crons/:id/log`
-- `GET /open/envs`
-- `POST /open/envs`
-- `PUT /open/envs`
-- `PUT /open/envs/enable`
-- `PUT /open/envs/disable`
+## 安装
 
-当前第一版覆盖登录、系统信息、任务列表、任务运行/停止/启停、任务日志、环境变量列表、变量新增/编辑/启停。脚本文件、订阅、依赖管理等危险操作先不放进第一版，后续可以继续扩展。
+GitHub Actions 会自动构建无签名 IPA，并发布到 Release。
 
-后续版本补充了：
-
-- iOS 16 白天模式、夜间模式、跟随系统
-- 青龙 v2.20.0 定时任务分页返回格式兼容
-- 定时任务置顶优先显示
-- 定时任务新增、编辑、置顶/取消置顶
-- 环境变量按网页版规则排序：置顶优先，其次 `position` 倒序
-- 环境变量置顶/取消置顶
-- 脚本管理：目录浏览、文件查看，并兼容 v2.20.0 的脚本树结构
-
-新版客户端最低支持 iOS 16，使用 `Project.yml` + XcodeGen 生成 Xcode 工程，GitHub Actions 会构建无签名 IPA 并发布到 `qlclient-unsigned-latest` Release。
-
-## 当前状态
-
-这个仓库仍保留历史 IPA 包、打包脚本和旧共享 Xcode scheme。旧工程缺少完整的 Xcode 工程文件和源代码：
-
-- 缺少 `amz_profit_calculator.xcodeproj/project.pbxproj`
-- 缺少 `.swift`、`.m`、`.h`、`.plist`、Storyboard 等源码文件
-- `versions/v1.0.21_20260527_1909/BUILD_INFO.json` 显示最新包来自 `feature/app-store-subscription` 分支的 `eac2f80` 提交，但该源码分支不在当前公开仓库中
-
-因此，旧客户端不能从源码重新构建，也不能直接修改旧代码。新版 SwiftUI 客户端是独立重写的可构建工程。
-
-## 直接下载 IPA
-
-仓库包含已归档的 IPA 文件。GitHub Actions 会把 `versions/` 目录下最新的 `qlmb-adhoc.ipa` 发布到 `unsigned-latest` Release，下载 Release 里的 `.ipa` 文件即可，不需要把 zip 改后缀。
-
-安装到 TrollStore 时请直接使用 Release 资产中的 `qlmb-adhoc.ipa`。
-
-## 本地安装
+- 最新版本：[QLClient-unsigned.ipa](https://github.com/blueskycrb/QLClient/releases/download/qlclient-unsigned-latest/QLClient-unsigned.ipa)
+- 所有版本：[Releases](https://github.com/blueskycrb/QLClient/releases)
 
 ### TrollStore
 
-1. 下载 Release 里的 `qlmb-adhoc.ipa`。
+1. 下载 Release 中的 `QLClient-unsigned.ipa`。
 2. 把 IPA 传到 iPhone。
-3. 在 TrollStore 中点击 `+`，选择 `Install IPA from File`。
-4. 选择 `qlmb-adhoc.ipa` 安装。
+3. 在 TrollStore 中点击 `+`。
+4. 选择 `Install IPA from File` 并安装。
 
-### Sideloadly / AltStore
+### 其他安装方式
 
-如果不用 TrollStore，可以用 Sideloadly 或 AltStore 重新签名安装。免费 Apple ID 通常需要 7 天重新签名一次。
+如果不用 TrollStore，可以使用 Sideloadly、AltStore 等工具重新签名后安装。免费 Apple ID 通常需要定期重新签名。
 
-## 重新构建所需文件
+## 青龙权限
 
-如果要真正构建新版 IPA、优化代码或适配青龙网页版新功能，请补齐以下内容：
+在青龙 Web 面板中创建 Open API 应用，并给应用授予以下权限：
 
-- 完整 `.xcodeproj` 或 `.xcworkspace`
-- iOS 源码文件
-- `Info.plist`、资源文件、Core Data model 等工程依赖
-- 可用的构建 scheme
+- `system`
+- `crons`
+- `envs`
+- `scripts`
 
-补齐后可以再把 GitHub Actions 改成真正的 Xcode 构建流程。
+如果缺少某项权限，对应页面可能会返回 `401` 或权限错误。
+
+## 本地构建
+
+项目使用 `Project.yml` + XcodeGen 生成 Xcode 工程。
+
+```bash
+brew install xcodegen
+xcodegen generate
+xcodebuild \
+  -project QLClient.xcodeproj \
+  -scheme QLClient \
+  -configuration Release \
+  -destination "generic/platform=iOS" \
+  CODE_SIGNING_ALLOWED=NO \
+  CODE_SIGNING_REQUIRED=NO \
+  CODE_SIGN_IDENTITY="" \
+  build
+```
+
+构建完成后，将 `QLClient.app` 放入 `Payload/` 目录并压缩为 `.ipa` 即可安装或重新签名。
+
+## 发布
+
+推送到 `main` 后，GitHub Actions 会构建无签名 IPA，并发布：
+
+- `qlclient-unsigned-latest`
+- `qlclient-unsigned-<commit>`
+
+固定版本链接适合避免浏览器或安装工具缓存旧包。
