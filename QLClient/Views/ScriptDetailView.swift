@@ -231,12 +231,13 @@ struct ScriptDetailView: View {
     defer { isStartingRun = false }
 
     let tempFile = temporaryScriptFilename(for: file.title)
-    let command = shellCommand(for: tempFile, path: file.parent)
+    let tempPath = ""
+    let command = shellCommand(for: tempFile, path: tempPath)
     currentRunCommand = command
 
     do {
       let normalizedContent = content.replacingOccurrences(of: "\r\n", with: "\n")
-      try await api.createScript(file: tempFile, path: file.parent, content: normalizedContent)
+      try await api.createScript(file: tempFile, path: tempPath, content: normalizedContent)
       appendRunLog("已创建临时测试脚本：\(tempFile)")
       appendRunLog("开始运行：\(file.title)")
 
@@ -263,7 +264,7 @@ struct ScriptDetailView: View {
     }
 
     do {
-      try await api.deleteScript(file: tempFile, path: file.parent)
+      try await api.deleteScript(file: tempFile, path: tempPath)
     } catch {
       appendRunLog("临时脚本清理失败：\(error.localizedDescription)")
     }
@@ -297,23 +298,28 @@ struct ScriptDetailView: View {
 
   private func temporaryScriptFilename(for filename: String) -> String {
     let nsFilename = filename as NSString
-    let name = nsFilename.deletingPathExtension
     let ext = nsFilename.pathExtension
     let suffix = UUID().uuidString.replacingOccurrences(of: "-", with: "").prefix(8)
     if ext.isEmpty {
-      return "\(name).qlclient-\(suffix).swap"
+      return "qlclient-test-\(suffix).swap"
     }
-    return "\(name).qlclient-\(suffix).swap.\(ext)"
+    return "qlclient-test-\(suffix).swap.\(ext)"
   }
 
   private func shellCommand(for filename: String, path: String) -> String {
     let relativePath = [path, filename]
       .filter { !$0.isEmpty }
       .joined(separator: "/")
-    return "\(shellQuoted(relativePath)) now"
+    return "\(shellEscaped(relativePath)) now"
   }
 
-  private func shellQuoted(_ value: String) -> String {
-    "'" + value.replacingOccurrences(of: "'", with: "'\\''") + "'"
+  private func shellEscaped(_ value: String) -> String {
+    value
+      .replacingOccurrences(of: "\\", with: "\\\\")
+      .replacingOccurrences(of: " ", with: "\\ ")
+      .replacingOccurrences(of: "\"", with: "\\\"")
+      .replacingOccurrences(of: "'", with: "\\'")
+      .replacingOccurrences(of: "(", with: "\\(")
+      .replacingOccurrences(of: ")", with: "\\)")
   }
 }
