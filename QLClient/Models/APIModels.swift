@@ -229,6 +229,53 @@ struct ScriptUpdatePayload: Encodable {
   let content: String
 }
 
+struct ScriptRunPayload: Encodable {
+  let filename: String
+  let path: String
+  let content: String
+}
+
+struct ScriptStopPayload: Encodable {
+  let filename: String
+  let path: String
+  let pid: Int?
+}
+
+struct ScriptDeletePayload: Encodable {
+  let filename: String
+  let path: String
+  let type: String
+}
+
+struct CommandRunPayload: Encodable {
+  let command: String
+}
+
+struct CommandStopPayload: Encodable {
+  let command: String?
+  let pid: Int?
+}
+
+struct FlexibleIntValue: Decodable {
+  let value: Int
+
+  init(from decoder: Decoder) throws {
+    let container = try decoder.singleValueContainer()
+    if let value = try? container.decode(Int.self) {
+      self.value = value
+    } else if let value = try? container.decode(Double.self) {
+      self.value = Int(value)
+    } else if let value = try? container.decode(String.self), let intValue = Int(value) {
+      self.value = intValue
+    } else {
+      throw DecodingError.typeMismatch(
+        Int.self,
+        DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "Expected an integer pid")
+      )
+    }
+  }
+}
+
 struct ScriptFile: Identifiable, Decodable, Hashable {
   let title: String
   let key: String

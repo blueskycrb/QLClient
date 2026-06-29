@@ -158,6 +158,61 @@ final class QingLongAPI {
     try await emptyRequest("open/scripts", method: "PUT", body: payload)
   }
 
+  func runScript(file: String, path: String, content: String) async throws -> Int {
+    let payload = ScriptRunPayload(filename: file, path: path, content: content)
+    let response: APIResponse<FlexibleIntValue> = try await request("open/scripts/run", method: "PUT", body: payload)
+    guard let pid = response.data?.value else { throw QingLongAPIError.emptyResponse }
+    return pid
+  }
+
+  func stopScript(file: String, path: String, pid: Int?) async throws {
+    let payload = ScriptStopPayload(filename: file, path: path, pid: pid)
+    try await emptyRequest("open/scripts/stop", method: "PUT", body: payload)
+  }
+
+  func createScript(file: String, path: String, content: String) async throws {
+    let payload = ScriptUpdatePayload(filename: file, path: path, content: content)
+    try await emptyRequest("open/scripts", method: "POST", body: payload)
+  }
+
+  func deleteScript(file: String, path: String) async throws {
+    let payload = ScriptDeletePayload(filename: file, path: path, type: "file")
+    try await emptyRequest("open/scripts", method: "DELETE", body: payload)
+  }
+
+  func runCommand(
+    _ command: String,
+    onStart: @escaping (Int?) async -> Void,
+    onOutput: @escaping (String) async -> Void
+  ) async throws {
+    let payload = CommandRunPayload(command: command)
+    var request = URLRequest(url: makeURL(path: "open/system/command-run", queryItems: []))
+    request.httpMethod = "PUT"
+    request.setValue("application/json", forHTTPHeaderField: "Accept")
+    request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+    guard let token else { throw QingLongAPIError.missingToken }
+    request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+    request.httpBody = try JSONEncoder.qingLong.encode(payload)
+
+    let (bytes, urlResponse) = try await session.bytes(for: request)
+    if let http = urlResponse as? HTTPURLResponse, !(200...299).contains(http.statusCode) {
+      throw QingLongAPIError.unexpectedStatus(http.statusCode)
+    }
+
+    let pid = (urlResponse as? HTTPURLResponse)?.value(forHTTPHeaderField: "QL-Task-Pid").flatMap(Int.init)
+    await onStart(pid)
+
+    for try await line in bytes.lines {
+      await onOutput(line + "\n")
+    }
+  }
+
+  func stopCommand(pid: Int?, command: String?) async throws {
+    let payload = CommandStopPayload(command: command, pid: pid)
+    try await emptyRequest("open/system/command-stop", method: "PUT", body: payload)
+  }
+
   private func dataRequest<T: Decodable>(
     _ path: String,
     queryItems: [URLQueryItem] = []
