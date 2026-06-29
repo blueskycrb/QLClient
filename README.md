@@ -17,7 +17,7 @@ QLClient 是一个面向青龙面板的 iOS 客户端，使用 SwiftUI 编写，
 
 ## 安装
 
-GitHub Actions 会自动构建无签名 IPA，并发布到 Release。
+下载 Release 中的 IPA 后，可以通过 TrollStore 安装。
 
 - 最新版本：[QLClient-unsigned.ipa](https://github.com/blueskycrb/QLClient/releases/download/qlclient-unsigned-latest/QLClient-unsigned.ipa)
 - 所有版本：[Releases](https://github.com/blueskycrb/QLClient/releases)
@@ -29,10 +29,6 @@ GitHub Actions 会自动构建无签名 IPA，并发布到 Release。
 3. 在 TrollStore 中点击 `+`。
 4. 选择 `Install IPA from File` 并安装。
 
-### 其他安装方式
-
-如果不用 TrollStore，可以使用 Sideloadly、AltStore 等工具重新签名后安装。免费 Apple ID 通常需要定期重新签名。
-
 ## 青龙权限
 
 在青龙 Web 面板中创建 Open API 应用，并给应用授予以下权限：
@@ -43,32 +39,3 @@ GitHub Actions 会自动构建无签名 IPA，并发布到 Release。
 - `scripts`
 
 如果缺少某项权限，对应页面可能会返回 `401` 或权限错误。
-
-## 本地构建
-
-项目使用 `Project.yml` + XcodeGen 生成 Xcode 工程。
-
-```bash
-brew install xcodegen
-xcodegen generate
-xcodebuild \
-  -project QLClient.xcodeproj \
-  -scheme QLClient \
-  -configuration Release \
-  -destination "generic/platform=iOS" \
-  CODE_SIGNING_ALLOWED=NO \
-  CODE_SIGNING_REQUIRED=NO \
-  CODE_SIGN_IDENTITY="" \
-  build
-```
-
-构建完成后，将 `QLClient.app` 放入 `Payload/` 目录并压缩为 `.ipa` 即可安装或重新签名。
-
-## 发布
-
-推送到 `main` 后，GitHub Actions 会构建无签名 IPA，并发布：
-
-- `qlclient-unsigned-latest`
-- `qlclient-unsigned-<commit>`
-
-固定版本链接适合避免浏览器或安装工具缓存旧包。
