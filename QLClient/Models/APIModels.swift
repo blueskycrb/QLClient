@@ -4,7 +4,7 @@ struct APIResponse<T: Decodable>: Decodable {
   let code: Int
   let data: T?
   let message: String?
-  let logStatus: Int?
+  let logStatus: String?
 }
 
 struct EmptyRequestBody: Encodable {}
@@ -155,7 +155,20 @@ struct CronPayload: Encodable {
 
 struct CronLog: Equatable {
   let content: String
-  let status: Int?
+  let status: String?
+}
+
+struct CronLogFile: Identifiable, Decodable, Hashable {
+  let filename: String
+  let directory: String
+  let time: Double?
+
+  var id: String { "\(directory)/\(filename)" }
+  var displayTime: String {
+    guard let time else { return "-" }
+    let date = Date(timeIntervalSince1970: time / 1000)
+    return date.formatted(date: .abbreviated, time: .shortened)
+  }
 }
 
 struct EnvItem: Identifiable, Decodable, Hashable {

@@ -104,6 +104,22 @@ final class QingLongAPI {
     return CronLog(content: response.data ?? "", status: response.logStatus)
   }
 
+  func cronLogs(id: Int) async throws -> [CronLogFile] {
+    try await dataRequest("open/crons/\(id)/logs")
+  }
+
+  func logDetail(file: String, path: String) async throws -> CronLog {
+    let response: APIResponse<String> = try await request(
+      "open/logs/detail",
+      method: "GET",
+      queryItems: [
+        URLQueryItem(name: "file", value: file),
+        URLQueryItem(name: "path", value: path)
+      ]
+    )
+    return CronLog(content: response.data ?? "", status: response.logStatus)
+  }
+
   func envs(searchText: String = "") async throws -> [EnvItem] {
     let items: [EnvItem] = try await dataRequest(
       "open/envs",

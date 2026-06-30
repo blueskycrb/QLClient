@@ -7,6 +7,7 @@ struct CronDetailView: View {
   @State private var isWorking = false
   @State private var actionError: String?
   @State private var showingEditor = false
+  @State private var showingLogHistory = false
   let onChange: () -> Void
 
   init(cron: CronItem, onChange: @escaping () -> Void) {
@@ -49,6 +50,13 @@ struct CronDetailView: View {
           Task { await stop() }
         } label: {
           Label("停止", systemImage: "stop.fill")
+        }
+        .disabled(isWorking)
+
+        Button {
+          showingLogHistory = true
+        } label: {
+          Label("历史日志", systemImage: "clock.arrow.circlepath")
         }
         .disabled(isWorking)
 
@@ -102,6 +110,10 @@ struct CronDetailView: View {
         onChange()
       }
       .environmentObject(appState)
+    }
+    .sheet(isPresented: $showingLogHistory) {
+      CronLogHistoryView(cron: cron)
+        .environmentObject(appState)
     }
     .task { await loadLog() }
   }
