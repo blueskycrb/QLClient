@@ -34,15 +34,18 @@ struct ScriptListView: View {
               } label: {
                 ScriptFileRow(file: file)
               }
+              .qlRowCard()
             } else {
               NavigationLink {
                 ScriptDetailView(file: file)
               } label: {
                 ScriptFileRow(file: file)
               }
+              .qlRowCard()
             }
           }
           .listStyle(.insetGrouped)
+          .qlListBackground()
         }
       }
     }
@@ -100,14 +103,14 @@ private struct ScriptFileRow: View {
 
   var body: some View {
     HStack(spacing: 12) {
-      Image(systemName: file.isDirectory ? "folder" : "doc.text")
-        .font(.system(size: 21, weight: .semibold))
-        .foregroundColor(file.isDirectory ? QLStyle.amber : QLStyle.secondary)
-        .frame(width: 38, height: 38)
-        .background((file.isDirectory ? QLStyle.amber : QLStyle.secondary).opacity(0.12), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+      QLIconTile(
+        systemImage: file.isDirectory ? "folder.fill" : "doc.text",
+        color: file.isDirectory ? QLStyle.amber : QLStyle.secondary,
+        filled: file.isDirectory
+      )
       VStack(alignment: .leading, spacing: 4) {
         Text(file.title)
-          .font(.headline)
+          .font(.headline.weight(.semibold))
           .lineLimit(1)
         Text(file.isDirectory ? file.key : file.displaySize)
           .font(.caption)

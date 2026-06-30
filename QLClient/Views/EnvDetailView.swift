@@ -52,6 +52,8 @@ struct EnvDetailView: View {
       }
     }
     .navigationTitle(env.name)
+    .listStyle(.insetGrouped)
+    .qlListBackground()
     .sheet(isPresented: $showingEditor) {
       EnvEditorView(env: env) {
         onChange()

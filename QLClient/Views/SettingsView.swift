@@ -25,11 +25,14 @@ struct SettingsView: View {
           } label: {
             HStack(spacing: 12) {
               Image(systemName: appState.session?.accountID == account.id ? "checkmark.circle.fill" : "server.rack")
+                .font(.system(size: 20, weight: .semibold))
                 .foregroundColor(appState.session?.accountID == account.id ? QLStyle.primary : .secondary)
-                .frame(width: 26)
+                .frame(width: 34, height: 34)
+                .background((appState.session?.accountID == account.id ? QLStyle.primary : Color.secondary).opacity(0.10), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
 
               VStack(alignment: .leading, spacing: 3) {
                 Text(account.displayName)
+                  .font(.subheadline.weight(.semibold))
                   .foregroundColor(.primary)
                 Text(account.detailText)
                   .font(.caption)
@@ -112,6 +115,8 @@ struct SettingsView: View {
       }
     }
     .navigationTitle("设置")
+    .listStyle(.insetGrouped)
+    .qlListBackground()
     .sheet(isPresented: $showingAddAccount) {
       LoginView {
         showingAddAccount = false

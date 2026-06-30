@@ -4,7 +4,24 @@ enum QLStyle {
   static let primary = Color(red: 0.00, green: 0.62, blue: 0.52)
   static let secondary = Color(red: 0.12, green: 0.44, blue: 0.88)
   static let amber = Color(red: 0.95, green: 0.58, blue: 0.18)
-  static let cardCorner: CGFloat = 14
+  static let success = Color(red: 0.10, green: 0.66, blue: 0.36)
+  static let warning = Color(red: 0.94, green: 0.52, blue: 0.16)
+  static let danger = Color(red: 0.88, green: 0.20, blue: 0.22)
+  static let appBackground = Color(.systemGroupedBackground)
+  static let surface = Color(.secondarySystemGroupedBackground)
+  static let elevatedSurface = Color(.tertiarySystemGroupedBackground)
+  static let cardCorner: CGFloat = 16
+  static let rowCorner: CGFloat = 14
+}
+
+extension QLStyle {
+  static func accentGradient(_ color: Color = QLStyle.primary) -> LinearGradient {
+    LinearGradient(
+      colors: [color, QLStyle.secondary.opacity(0.72)],
+      startPoint: .topLeading,
+      endPoint: .bottomTrailing
+    )
+  }
 }
 
 struct BrandMark: View {
@@ -33,12 +50,65 @@ struct CardBackground: ViewModifier {
   func body(content: Content) -> some View {
     content
       .padding(14)
-      .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: QLStyle.cardCorner, style: .continuous))
+      .background(QLStyle.surface, in: RoundedRectangle(cornerRadius: QLStyle.cardCorner, style: .continuous))
+      .overlay(
+        RoundedRectangle(cornerRadius: QLStyle.cardCorner, style: .continuous)
+          .stroke(Color.primary.opacity(0.05), lineWidth: 1)
+      )
+  }
+}
+
+struct QLIconTile: View {
+  let systemImage: String
+  let color: Color
+  var filled = false
+  var size: CGFloat = 42
+
+  var body: some View {
+    ZStack {
+      RoundedRectangle(cornerRadius: 12, style: .continuous)
+        .fill(filled ? AnyShapeStyle(QLStyle.accentGradient(color)) : AnyShapeStyle(color.opacity(0.12)))
+      Image(systemName: systemImage)
+        .font(.system(size: 21, weight: .semibold))
+        .foregroundColor(filled ? .white : color)
+    }
+    .frame(width: size, height: size)
+    .shadow(color: color.opacity(filled ? 0.22 : 0), radius: 10, x: 0, y: 5)
+  }
+}
+
+struct RowCardBackground: ViewModifier {
+  func body(content: Content) -> some View {
+    content
+      .listRowSeparator(.hidden)
+      .listRowInsets(EdgeInsets(top: 6, leading: 14, bottom: 6, trailing: 14))
+      .listRowBackground(
+        RoundedRectangle(cornerRadius: QLStyle.rowCorner, style: .continuous)
+          .fill(QLStyle.surface)
+          .padding(.vertical, 3)
+          .padding(.horizontal, 10)
+      )
+  }
+}
+
+struct ListSurfaceBackground: ViewModifier {
+  func body(content: Content) -> some View {
+    content
+      .scrollContentBackground(.hidden)
+      .background(QLStyle.appBackground)
   }
 }
 
 extension View {
   func qlCard() -> some View {
     modifier(CardBackground())
+  }
+
+  func qlRowCard() -> some View {
+    modifier(RowCardBackground())
+  }
+
+  func qlListBackground() -> some View {
+    modifier(ListSurfaceBackground())
   }
 }

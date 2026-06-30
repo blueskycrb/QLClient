@@ -28,8 +28,10 @@ struct EnvListView: View {
             } label: {
               EnvRow(env: env)
             }
+            .qlRowCard()
           }
           .listStyle(.insetGrouped)
+          .qlListBackground()
         }
       }
     }
@@ -92,21 +94,17 @@ private struct EnvRow: View {
 
   var body: some View {
     HStack(alignment: .top, spacing: 12) {
-      Image(systemName: "curlybraces.square")
-        .font(.system(size: 22, weight: .semibold))
-        .foregroundColor(env.isEnabled ? QLStyle.primary : .secondary)
-        .frame(width: 38, height: 38)
-        .background((env.isEnabled ? QLStyle.primary : Color.secondary).opacity(0.12), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+      QLIconTile(systemImage: "curlybraces.square", color: env.isEnabled ? QLStyle.primary : .secondary)
 
       VStack(alignment: .leading, spacing: 8) {
         HStack(alignment: .firstTextBaseline) {
           Text(env.name)
-            .font(.headline)
+            .font(.headline.weight(.semibold))
             .lineLimit(1)
           Spacer(minLength: 8)
-          StatusBadge(text: env.isEnabled ? "启用" : "禁用", color: env.isEnabled ? .green : .gray)
+          StatusBadge(text: env.isEnabled ? "启用" : "禁用", color: env.isEnabled ? QLStyle.success : .gray)
           if env.isPinnedOnTop {
-            StatusBadge(text: "置顶", color: .orange)
+            StatusBadge(text: "置顶", color: QLStyle.warning)
           }
         }
         Text(env.value)

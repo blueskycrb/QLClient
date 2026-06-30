@@ -86,6 +86,8 @@ struct CronDetailView: View {
       }
     }
     .navigationTitle(cron.title)
+    .listStyle(.insetGrouped)
+    .qlListBackground()
     .toolbar {
       ToolbarItem(placement: .navigationBarTrailing) {
         Button {

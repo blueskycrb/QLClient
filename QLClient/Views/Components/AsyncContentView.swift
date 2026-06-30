@@ -12,21 +12,19 @@ struct EmptyStateView: View {
   let systemImage: String
 
   var body: some View {
-    VStack(spacing: 12) {
-      ZStack {
-        Circle()
-          .fill(QLStyle.primary.opacity(0.12))
-          .frame(width: 76, height: 76)
-        Image(systemName: systemImage)
-          .font(.system(size: 32, weight: .semibold))
-          .foregroundColor(QLStyle.primary)
-      }
+    VStack(spacing: 14) {
+      QLIconTile(systemImage: systemImage, color: QLStyle.primary, filled: true)
+        .scaleEffect(1.2)
       Text(title)
-        .font(.headline)
+        .font(.headline.weight(.semibold))
+      Text("下拉刷新或点右上角按钮同步最新数据")
+        .font(.footnote)
         .foregroundColor(.secondary)
+        .multilineTextAlignment(.center)
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .padding()
+    .background(QLStyle.appBackground)
   }
 }
 
@@ -35,16 +33,13 @@ struct ErrorStateView: View {
   let retry: () -> Void
 
   var body: some View {
-    VStack(spacing: 12) {
-      ZStack {
-        Circle()
-          .fill(Color.orange.opacity(0.14))
-          .frame(width: 76, height: 76)
-        Image(systemName: "exclamationmark.triangle")
-          .font(.system(size: 30, weight: .semibold))
-          .foregroundColor(.orange)
-      }
+    VStack(spacing: 14) {
+      QLIconTile(systemImage: "exclamationmark.triangle", color: QLStyle.warning, filled: true)
+        .scaleEffect(1.2)
+      Text("加载失败")
+        .font(.headline.weight(.semibold))
       Text(message)
+        .font(.footnote)
         .multilineTextAlignment(.center)
         .foregroundColor(.secondary)
       Button("重试", action: retry)
@@ -53,6 +48,7 @@ struct ErrorStateView: View {
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .padding()
+    .background(QLStyle.appBackground)
   }
 }
 
@@ -78,10 +74,14 @@ struct InfoRow: View {
   var body: some View {
     HStack(alignment: .top, spacing: 12) {
       Text(title)
+        .font(.subheadline)
         .foregroundColor(.secondary)
       Spacer(minLength: 16)
       Text(value)
+        .font(.subheadline.weight(.medium))
         .multilineTextAlignment(.trailing)
+        .textSelection(.enabled)
     }
+    .padding(.vertical, 2)
   }
 }

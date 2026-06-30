@@ -28,8 +28,10 @@ struct CronListView: View {
             } label: {
               CronRow(cron: cron)
             }
+            .qlRowCard()
           }
           .listStyle(.insetGrouped)
+          .qlListBackground()
         }
       }
     }
@@ -92,25 +94,25 @@ private struct CronRow: View {
 
   var body: some View {
     HStack(alignment: .top, spacing: 12) {
-      Image(systemName: cron.isRunning ? "play.circle.fill" : "clock")
-        .font(.system(size: 22, weight: .semibold))
-        .foregroundColor(cron.isRunning ? QLStyle.secondary : QLStyle.primary)
-        .frame(width: 38, height: 38)
-        .background((cron.isRunning ? QLStyle.secondary : QLStyle.primary).opacity(0.12), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+      QLIconTile(
+        systemImage: cron.isRunning ? "play.fill" : "clock",
+        color: cron.isRunning ? QLStyle.secondary : QLStyle.primary,
+        filled: cron.isRunning
+      )
 
       VStack(alignment: .leading, spacing: 8) {
         HStack(alignment: .firstTextBaseline) {
           Text(cron.title)
-            .font(.headline)
+            .font(.headline.weight(.semibold))
             .lineLimit(2)
           Spacer(minLength: 8)
           if cron.isRunning {
-            StatusBadge(text: "运行中", color: .blue)
+            StatusBadge(text: "运行中", color: QLStyle.secondary)
           } else {
-            StatusBadge(text: cron.isEnabled ? "启用" : "禁用", color: cron.isEnabled ? .green : .gray)
+            StatusBadge(text: cron.isEnabled ? "启用" : "禁用", color: cron.isEnabled ? QLStyle.success : .gray)
           }
           if cron.isPinnedOnTop {
-            StatusBadge(text: "置顶", color: .orange)
+            StatusBadge(text: "置顶", color: QLStyle.warning)
           }
         }
         Text(cron.command)

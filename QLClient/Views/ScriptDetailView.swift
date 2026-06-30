@@ -58,7 +58,7 @@ struct ScriptDetailView: View {
           Divider()
           runConsole
         }
-        .background(Color(.systemBackground))
+        .background(QLStyle.appBackground)
       }
     }
     .navigationTitle(file.title)
@@ -96,6 +96,19 @@ struct ScriptDetailView: View {
 
   private var runControls: some View {
     VStack(alignment: .leading, spacing: 8) {
+      HStack(spacing: 8) {
+        QLIconTile(systemImage: "bolt.fill", color: QLStyle.primary, size: 34)
+        VStack(alignment: .leading, spacing: 2) {
+          Text("脚本测试")
+            .font(.subheadline.weight(.semibold))
+          Text(runStatusText)
+            .font(.caption)
+            .foregroundColor(.secondary)
+            .lineLimit(2)
+        }
+        Spacer(minLength: 0)
+      }
+
       ViewThatFits(in: .horizontal) {
         HStack(spacing: 10) {
           runButtons
@@ -104,16 +117,11 @@ struct ScriptDetailView: View {
           runButtons
         }
       }
-
-      Text(runStatusText)
-        .font(.caption)
-        .foregroundColor(.secondary)
-        .lineLimit(2)
     }
     .frame(maxWidth: .infinity, alignment: .leading)
     .padding(.horizontal)
-    .padding(.vertical, 10)
-    .background(Color(.secondarySystemBackground))
+    .padding(.vertical, 12)
+    .background(QLStyle.surface)
   }
 
   private var runButtons: some View {
@@ -142,6 +150,7 @@ struct ScriptDetailView: View {
       .buttonStyle(.bordered)
       .disabled(runLog.isEmpty || isStoppingRun)
     }
+    .controlSize(.regular)
   }
 
   private var runConsole: some View {
@@ -158,15 +167,20 @@ struct ScriptDetailView: View {
       ScrollView([.vertical, .horizontal]) {
         Text(runLog.isEmpty ? "暂无测试输出" : runLog)
           .font(.system(.caption, design: .monospaced))
-          .foregroundColor(runLog.isEmpty ? .secondary : .primary)
+          .foregroundColor(runLog.isEmpty ? Color.white.opacity(0.45) : Color.white.opacity(0.92))
           .frame(maxWidth: .infinity, alignment: .leading)
-          .padding(.vertical, 2)
+          .padding(12)
       }
       .frame(minHeight: 90, maxHeight: 180)
+      .background(Color(red: 0.07, green: 0.09, blue: 0.11), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+      .overlay(
+        RoundedRectangle(cornerRadius: 12, style: .continuous)
+          .stroke(Color.white.opacity(0.07), lineWidth: 1)
+      )
     }
     .frame(maxWidth: .infinity, alignment: .leading)
     .padding()
-    .background(Color(.systemBackground))
+    .background(QLStyle.surface)
   }
 
   private var runStatusText: String {

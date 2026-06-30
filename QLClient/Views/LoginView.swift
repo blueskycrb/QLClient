@@ -12,9 +12,9 @@ struct LoginView: View {
   var body: some View {
     NavigationView {
       ScrollView {
-        VStack(alignment: .leading, spacing: 18) {
+        VStack(alignment: .leading, spacing: 20) {
           VStack(alignment: .leading, spacing: 14) {
-            BrandMark(size: 72)
+            BrandMark(size: 76)
             VStack(alignment: .leading, spacing: 6) {
               Text("青龙客户端")
                 .font(.largeTitle)
@@ -25,6 +25,15 @@ struct LoginView: View {
             }
           }
           .frame(maxWidth: .infinity, alignment: .leading)
+          .padding(18)
+          .background(
+            LinearGradient(
+              colors: [QLStyle.primary.opacity(0.14), QLStyle.secondary.opacity(0.10)],
+              startPoint: .topLeading,
+              endPoint: .bottomTrailing
+            ),
+            in: RoundedRectangle(cornerRadius: 24, style: .continuous)
+          )
           .padding(.top, 18)
 
           VStack(alignment: .leading, spacing: 12) {
@@ -67,7 +76,7 @@ struct LoginView: View {
         .padding()
       }
       .navigationTitle("连接青龙")
-      .background(Color(.systemGroupedBackground))
+      .background(QLStyle.appBackground)
     }
   }
 
@@ -116,7 +125,11 @@ private struct InputRow: View {
         .accessibilityLabel("粘贴\(title)")
       }
       .padding(.horizontal, 12)
-      .background(Color(.tertiarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+      .background(QLStyle.elevatedSurface, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+      .overlay(
+        RoundedRectangle(cornerRadius: 12, style: .continuous)
+          .stroke(Color.primary.opacity(0.05), lineWidth: 1)
+      )
     }
   }
 }
