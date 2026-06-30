@@ -60,10 +60,10 @@ struct StatusBadge: View {
     Text(text)
       .font(.caption2)
       .fontWeight(.semibold)
-      .padding(.horizontal, 8)
-      .padding(.vertical, 4)
+      .padding(.horizontal, 7)
+      .padding(.vertical, 3)
       .foregroundColor(color)
-      .background(color.opacity(0.12), in: Capsule())
+      .background(color.opacity(0.10), in: Capsule())
   }
 }
 

@@ -10,8 +10,8 @@ enum QLStyle {
   static let appBackground = Color(.systemGroupedBackground)
   static let surface = Color(.secondarySystemGroupedBackground)
   static let elevatedSurface = Color(.tertiarySystemGroupedBackground)
-  static let cardCorner: CGFloat = 16
-  static let rowCorner: CGFloat = 14
+  static let cardCorner: CGFloat = 12
+  static let rowCorner: CGFloat = 10
 }
 
 extension QLStyle {
@@ -62,32 +62,26 @@ struct QLIconTile: View {
   let systemImage: String
   let color: Color
   var filled = false
-  var size: CGFloat = 42
+  var size: CGFloat = 34
 
   var body: some View {
     ZStack {
-      RoundedRectangle(cornerRadius: 12, style: .continuous)
+      RoundedRectangle(cornerRadius: 9, style: .continuous)
         .fill(filled ? AnyShapeStyle(QLStyle.accentGradient(color)) : AnyShapeStyle(color.opacity(0.12)))
       Image(systemName: systemImage)
-        .font(.system(size: 21, weight: .semibold))
+        .font(.system(size: size * 0.52, weight: .semibold))
         .foregroundColor(filled ? .white : color)
     }
     .frame(width: size, height: size)
-    .shadow(color: color.opacity(filled ? 0.22 : 0), radius: 10, x: 0, y: 5)
+    .shadow(color: color.opacity(filled ? 0.16 : 0), radius: 6, x: 0, y: 3)
   }
 }
 
 struct RowCardBackground: ViewModifier {
   func body(content: Content) -> some View {
     content
-      .listRowSeparator(.hidden)
-      .listRowInsets(EdgeInsets(top: 6, leading: 14, bottom: 6, trailing: 14))
-      .listRowBackground(
-        RoundedRectangle(cornerRadius: QLStyle.rowCorner, style: .continuous)
-          .fill(QLStyle.surface)
-          .padding(.vertical, 3)
-          .padding(.horizontal, 10)
-      )
+      .listRowInsets(EdgeInsets(top: 3, leading: 16, bottom: 3, trailing: 14))
+      .listRowBackground(QLStyle.surface)
   }
 }
 

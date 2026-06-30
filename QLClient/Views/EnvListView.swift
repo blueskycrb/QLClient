@@ -36,6 +36,7 @@ struct EnvListView: View {
       }
     }
     .navigationTitle("环境变量")
+    .navigationBarTitleDisplayMode(.inline)
     .searchable(text: $searchText, prompt: "搜索变量")
     .toolbar {
       ToolbarItemGroup(placement: .navigationBarTrailing) {
@@ -94,12 +95,12 @@ private struct EnvRow: View {
 
   var body: some View {
     HStack(alignment: .top, spacing: 12) {
-      QLIconTile(systemImage: "curlybraces.square", color: env.isEnabled ? QLStyle.primary : .secondary)
+      QLIconTile(systemImage: "curlybraces.square", color: env.isEnabled ? QLStyle.primary : .secondary, size: 34)
 
-      VStack(alignment: .leading, spacing: 8) {
+      VStack(alignment: .leading, spacing: 5) {
         HStack(alignment: .firstTextBaseline) {
           Text(env.name)
-            .font(.headline.weight(.semibold))
+            .font(.subheadline.weight(.semibold))
             .lineLimit(1)
           Spacer(minLength: 8)
           StatusBadge(text: env.isEnabled ? "启用" : "禁用", color: env.isEnabled ? QLStyle.success : .gray)
@@ -119,6 +120,6 @@ private struct EnvRow: View {
         }
       }
     }
-    .padding(.vertical, 6)
+    .padding(.vertical, 4)
   }
 }

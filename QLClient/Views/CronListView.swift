@@ -36,6 +36,7 @@ struct CronListView: View {
       }
     }
     .navigationTitle("定时任务")
+    .navigationBarTitleDisplayMode(.inline)
     .searchable(text: $searchText, prompt: "搜索任务")
     .toolbar {
       ToolbarItemGroup(placement: .navigationBarTrailing) {
@@ -97,14 +98,15 @@ private struct CronRow: View {
       QLIconTile(
         systemImage: cron.isRunning ? "play.fill" : "clock",
         color: cron.isRunning ? QLStyle.secondary : QLStyle.primary,
-        filled: cron.isRunning
+        filled: cron.isRunning,
+        size: 34
       )
 
-      VStack(alignment: .leading, spacing: 8) {
+      VStack(alignment: .leading, spacing: 5) {
         HStack(alignment: .firstTextBaseline) {
           Text(cron.title)
-            .font(.headline.weight(.semibold))
-            .lineLimit(2)
+            .font(.subheadline.weight(.semibold))
+            .lineLimit(1)
           Spacer(minLength: 8)
           if cron.isRunning {
             StatusBadge(text: "运行中", color: QLStyle.secondary)
@@ -118,7 +120,7 @@ private struct CronRow: View {
         Text(cron.command)
           .font(.caption)
           .foregroundColor(.secondary)
-          .lineLimit(2)
+          .lineLimit(1)
         if let schedule = cron.schedule, !schedule.isEmpty {
           Label(schedule, systemImage: "calendar")
             .font(.caption2)
@@ -127,6 +129,6 @@ private struct CronRow: View {
         }
       }
     }
-    .padding(.vertical, 6)
+    .padding(.vertical, 4)
   }
 }

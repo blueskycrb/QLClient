@@ -50,6 +50,7 @@ struct ScriptListView: View {
       }
     }
     .navigationTitle(title)
+    .navigationBarTitleDisplayMode(.inline)
     .searchable(text: $searchText, prompt: "搜索脚本")
     .toolbar {
       ToolbarItem(placement: .navigationBarTrailing) {
@@ -106,11 +107,12 @@ private struct ScriptFileRow: View {
       QLIconTile(
         systemImage: file.isDirectory ? "folder.fill" : "doc.text",
         color: file.isDirectory ? QLStyle.amber : QLStyle.secondary,
-        filled: file.isDirectory
+        filled: file.isDirectory,
+        size: 34
       )
       VStack(alignment: .leading, spacing: 4) {
         Text(file.title)
-          .font(.headline.weight(.semibold))
+          .font(.subheadline.weight(.semibold))
           .lineLimit(1)
         Text(file.isDirectory ? file.key : file.displaySize)
           .font(.caption)
@@ -118,6 +120,6 @@ private struct ScriptFileRow: View {
           .lineLimit(1)
       }
     }
-    .padding(.vertical, 4)
+    .padding(.vertical, 3)
   }
 }
