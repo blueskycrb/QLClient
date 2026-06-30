@@ -86,6 +86,7 @@ jobs:
             "build/QLClient-unsigned.ipa#QLClient-unsigned.ipa" \
             --title "QLClient unsigned IPA ${SHORT_SHA}" \
             --notes "Unsigned SwiftUI QingLong client built from ${GITHUB_SHA}. Install with TrollStore or sign manually." \
+            --target "$GITHUB_SHA" \
             --latest=false
 
           gh release delete "$latest_tag" --yes --cleanup-tag || true
@@ -95,4 +96,5 @@ jobs:
             "build/QLClient-unsigned.ipa#QLClient-unsigned.ipa" \
             --title "QLClient unsigned IPA latest" \
             --notes "Latest unsigned SwiftUI QingLong client. Current build: ${GITHUB_SHA}." \
+            --target "$GITHUB_SHA" \
             --latest=false
